@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HealthSync OS | Patient Management System</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --bg: #f8fafc;
+            --primary: #2563eb;
+            --primary-light: #eff6ff;
+            --surface: #ffffff;
+            --text: #1e293b;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+            --success: #10b981;
+            --warning: #f59e0b;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            font-family: 'Inter', sans-serif;
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar */
+        aside {
+            width: 260px;
+            background: var(--surface);
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            padding: 24px;
+            position: fixed;
+            top: 0; bottom: 0;
+        }
+
+        .logo { color: var(--primary); font-weight: 800; font-size: 20px; margin-bottom: 40px; display: flex; align-items: center; gap: 10px; }
+        .nav-item {
+            padding: 12px 16px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-muted);
+            cursor: pointer;
+            margin-bottom: 4px;
+            transition: all 0.2s;
+        }
+        .nav-item.active { background: var(--primary-light); color: var(--primary); }
+        .nav-item:hover:not(.active) { background: #f1f5f9; color: var(--text); }
+
+        /* Main Content */
+        main { flex: 1; padding: 32px; margin-left: 260px; overflow-y: auto; }
+
+        .page { display: none; }
+        .page.active { display: block; }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 32px;
+        }
+
+        .search-bar {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            padding: 10px 16px;
+            border-radius: 10px;
+            width: 400px;
+            font-size: 14px;
+            outline: none;
+        }
+
+        /* Dashboard Grid */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 24px;
+        }
+
+        .card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            margin-bottom: 24px;
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .patient-info {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        .avatar {
+            width: 64px; height: 64px;
+            border-radius: 50%;
+            background: var(--primary-light);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            color: var(--primary);
+            font-weight: 700;
+            overflow: hidden;
+        }
+        .avatar img { width: 100%; height: 100%; object-fit: cover; }
+
+        .vital-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        .vital-card {
+            padding: 16px;
+            border-radius: 12px;
+            background: #f8fafc;
+            border: 1px solid var(--border);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .vital-card:hover { border-color: var(--primary); transform: translateY(-2px); }
+        .vital-label { font-size: 12px; color: var(--text-muted); margin-bottom: 4px; }
+        .vital-value { font-size: 18px; font-weight: 700; }
+
+        /* Table */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+        th { text-align: left; padding: 12px; color: var(--text-muted); font-weight: 500; border-bottom: 1px solid var(--border); }
+        td { padding: 12px; border-bottom: 1px solid var(--border); }
+
+        .status-pill {
+            padding: 4px 10px;
+            border-radius: 100px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+        .status-stable { background: #d1fae5; color: #065f46; }
+
+        #notification-host {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 3000;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .toast {
+            background: var(--surface);
+            border-left: 4px solid var(--primary);
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-size: 13px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            animation: slideIn 0.3s forwards;
+            color: var(--text);
+            font-weight: 500;
+        }
+        @keyframes slideIn { from { transform: translateX(100%); } to { transform: translateX(0); } }
+
+        /* Back Button */
+        .back-nav {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            z-index: 2000;
+        }
+
+        .btn-back {
+            background: var(--surface);
+            color: var(--text);
+            border: 1px solid var(--border);
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 12px;
+            cursor: pointer;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        }
+    </style>
+</head>
+<body>
+    <div id="notification-host"></div>
+    <div class="back-nav">
+        <a href="../index.html" class="btn-back">← BACK TO PORTFOLIO</a>
+    </div>
+
+    <aside>
+        <div class="logo">✚ HealthSync OS</div>
+        <div class="nav-item active" onclick="showPage('dashboard')">Dashboard</div>
+        <div class="nav-item" onclick="showPage('patients')">Patients</div>
+        <div class="nav-item" onclick="showPage('appointments')">Appointments</div>
+        <div class="nav-item" onclick="showPage('analytics')">Analytics</div>
+        <div class="nav-item">Settings</div>
+    </aside>
+
+    <main>
+        <header>
+            <input type="text" class="search-bar" placeholder="Search patients, doctors, or records...">
+            <div style="display: flex; align-items: center; gap: 15px;">
+                <div style="text-align: right;">
+                    <div style="font-size: 14px; font-weight: 600;">Dr. Sarah Johnson</div>
+                    <div style="font-size: 12px; color: var(--text-muted);">Cardiologist</div>
+                </div>
+                <div class="avatar" style="width: 40px; height: 40px; font-size: 16px;">SJ</div>
+            </div>
+        </header>
+
+        <!-- DASHBOARD PAGE -->
+        <div id="dashboard" class="page active">
+            <div class="dashboard-grid">
+                <div>
+                    <div class="card">
+                        <div class="card-header">
+                            <h2 style="font-size: 18px;">Patient Spotlight</h2>
+                            <button style="color: var(--primary); background: none; border: none; font-size: 13px; font-weight: 600; cursor: pointer;">View Profile</button>
+                        </div>
+                        <div class="patient-info">
+                            <div class="avatar" id="active-avatar">JW</div>
+                            <div>
+                                <div style="font-size: 20px; font-weight: 700;" id="active-name">James Wilson</div>
+                                <div style="font-size: 14px; color: var(--text-muted);" id="active-meta">Male, 42 years · ID: #HS-90210</div>
+                            </div>
+                        </div>
+                        <div class="vital-grid">
+                            <div class="vital-card" onclick="drillDown('Heart Rate')">
+                                <div class="vital-label">Heart Rate</div>
+                                <div class="vital-value" style="color: var(--success)" id="v-hr">72 BPM</div>
+                            </div>
+                            <div class="vital-card" onclick="drillDown('Blood Pressure')">
+                                <div class="vital-label">Blood Pressure</div>
+                                <div class="vital-value" id="v-bp">120/80</div>
+                            </div>
+                            <div class="vital-card" onclick="drillDown('Temperature')">
+                                <div class="vital-label">Temperature</div>
+                                <div class="vital-value" id="v-temp">98.6 °F</div>
+                            </div>
+                        </div>
+                        <div style="height: 200px;">
+                            <canvas id="heartRateChart"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header"><h2 style="font-size: 18px;">Recent Appointments</h2></div>
+                        <table>
+                            <thead>
+                                <tr><th>Patient</th><th>Status</th><th>Time</th><th>Doctor</th></tr>
+                            </thead>
+                            <tbody id="appointment-table">
+                                <!-- Dynamic -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="sidebar-cards">
+                    <div class="card">
+                        <div class="card-header"><h2 style="font-size: 16px;">Vitals Overview</h2></div>
+                        <div style="display: flex; flex-direction: column; gap: 15px;">
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <span style="font-size: 14px;">Stable Patients</span>
+                                <span style="font-weight: 700; color: var(--success);">84%</span>
+                            </div>
+                            <div style="height: 6px; background: #f1f5f9; border-radius: 100px; overflow: hidden;">
+                                <div style="width: 84%; height: 100%; background: var(--success);"></div>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <span style="font-size: 14px;">Critical Alerts</span>
+                                <span style="font-weight: 700; color: #ef4444;">3</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header"><h2 style="font-size: 16px;">Medical History</h2></div>
+                        <div style="font-size: 13px; color: var(--text-muted); line-height: 1.6;" id="active-history">
+                            <p style="margin-bottom: 10px;"><strong>2026-05-15:</strong> Hypertension follow-up. BP normalized.</p>
+                            <p style="margin-bottom: 10px;"><strong>2026-03-10:</strong> Annual physical examination. Cholesterol levels slightly elevated.</p>
+                            <p><strong>2025-11-20:</strong> Flu vaccination administered.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- OTHER PAGES (Simulated) -->
+        <div id="patients" class="page">
+            <div class="card">
+                <h1>Patient Database</h1>
+                <p style="color: var(--text-muted); margin-bottom: 30px;">Manage all active clinical records.</p>
+                <table>
+                    <thead>
+                        <tr><th>Name</th><th>Age</th><th>Condition</th><th>Last Visit</th></tr>
+                    </thead>
+                    <tbody id="full-patient-list"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <div id="analytics" class="page">
+            <div class="card">
+                <h1>System Analytics</h1>
+                <div style="height: 400px; margin-top: 40px;">
+                    <canvas id="analyticsChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const patientData = {
+            'JW': { name: 'James Wilson', age: '42 years', id: '#HS-90210', hr: '72 BPM', bp: '120/80', temp: '98.6 °F', history: 'Hypertension follow-up. BP normalized.', img: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=200' },
+            'ER': { name: 'Elena Rodriguez', age: '29 years', id: '#HS-90211', hr: '84 BPM', bp: '115/75', temp: '99.1 °F', history: 'Post-op recovery. Wound healing well.', img: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&q=80&w=200' },
+            'RF': { name: 'Robert Fox', age: '56 years', id: '#HS-90212', hr: '65 BPM', bp: '135/90', temp: '98.2 °F', history: 'Type 2 Diabetes management. A1C stable.', img: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=200' }
+        };
+
+        let hrChart;
+
+        function notify(msg) {
+            const host = document.getElementById('notification-host');
+            const toast = document.createElement('div');
+            toast.className = 'toast';
+            toast.textContent = msg;
+            host.appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
+        }
+
+        function showPage(id) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+            document.querySelectorAll('.nav-item').forEach(i => {
+                i.classList.remove('active');
+                if(i.textContent.toLowerCase() === id) i.classList.add('active');
+            });
+            if(id === 'analytics') renderAnalytics();
+        }
+
+        function switchPatient(initials) {
+            const data = patientData[initials];
+            document.getElementById('active-avatar').innerHTML = `<img src="${data.img}" alt="${data.name}">`;
+            document.getElementById('active-name').textContent = data.name;
+            document.getElementById('active-meta').textContent = `Male, ${data.age} · ID: ${data.id}`;
+            document.getElementById('v-hr').textContent = data.hr;
+            document.getElementById('v-bp').textContent = data.bp;
+            document.getElementById('v-temp').textContent = data.temp;
+            document.getElementById('active-history').innerHTML = `<p><strong>Latest Update:</strong> ${data.history}</p>`;
+            
+            updateChart();
+            notify(`Switched to patient: ${data.name}`);
+        }
+
+        function drillDown(vital) {
+            notify(`Drilling down into ${vital} historical data...`);
+        }
+
+        function renderAppointments() {
+            const tbody = document.getElementById('appointment-table');
+            tbody.innerHTML = '';
+            Object.keys(patientData).forEach(key => {
+                const p = patientData[key];
+                const row = document.createElement('tr');
+                row.style.cursor = 'pointer';
+                row.innerHTML = `
+                    <td><div style="display:flex; align-items:center; gap:10px;"><img src="${p.img}" style="width:30px; height:30px; border-radius:50%; object-fit:cover;"> <strong>${p.name}</strong></div></td>
+                    <td><span class="status-pill status-stable">Stable</span></td>
+                    <td>${Math.floor(Math.random()*12)+1}:00 PM</td>
+                    <td>Dr. Sarah Johnson</td>
+                `;
+                row.onclick = () => switchPatient(key);
+                tbody.appendChild(row);
+            });
+        }
+        
+        // Initialize first patient
+        window.onload = () => switchPatient('JW');
+
+        function updateChart() {
+            const newData = Array.from({length: 9}, () => Math.floor(Math.random() * 20) + 65);
+            hrChart.data.datasets[0].data = newData;
+            hrChart.update();
+        }
+
+        const ctx = document.getElementById('heartRateChart').getContext('2d');
+        hrChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: ['8:00', '8:15', '8:30', '8:45', '9:00', '9:15', '9:30', '9:45', '10:00'],
+                datasets: [{
+                    label: 'Heart Rate',
+                    data: [68, 70, 72, 75, 72, 71, 73, 72, 72],
+                    borderColor: '#2563eb',
+                    backgroundColor: 'rgba(37, 99, 235, 0.1)',
+                    fill: true,
+                    tension: 0.4
+                }]
+            },
+            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
+        });
+
+        function renderAnalytics() {
+            const actx = document.getElementById('analyticsChart').getContext('2d');
+            new Chart(actx, {
+                type: 'bar',
+                data: {
+                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                    datasets: [{ label: 'Patient Inflow', data: [120, 150, 180, 140, 210, 250], backgroundColor: '#2563eb' }]
+                },
+                options: { responsive: true, maintainAspectRatio: false }
+            });
+        }
+
+        renderAppointments();
+    </script>
+</body>
+</html>

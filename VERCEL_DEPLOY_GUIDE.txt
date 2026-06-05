@@ -1,0 +1,33 @@
+🚀 VERCEL FREE HOSTING GUIDE (ZERO-CONFIG)
+========================================
+
+Follow these steps to host your Portfolio and all 12 interactive apps for FREE on Vercel.
+
+METHOD 1: THE QUICKEST WAY (Using Vercel CLI)
+---------------------------------------------
+1. INSTALL: Open your terminal and run:
+   npm install -g vercel
+
+2. LOGIN: Run 'vercel login' and sign into your free account.
+
+3. DEPLOY: Navigate to this folder in your terminal and run:
+   vercel --prod
+
+4. DONE: Copy the "Production" link provided in the terminal. Your site is live!
+
+
+METHOD 2: THE CLEANEST WAY (Using GitHub - Recommended)
+-------------------------------------------------------
+1. UPLOAD: Create a new Repository on GitHub and upload all files (index.html + samples folder).
+
+2. IMPORT: Log into vercel.com, click "Add New" -> "Project".
+
+3. CONNECT: Select your GitHub repository.
+
+4. DEPLOY: Click "Deploy". Vercel will now automatically update your site every time you push changes to GitHub.
+
+
+CRITICAL NOTES:
+- MAIN FILE: I have already renamed 'MY PORTFOLIO WEBSITE.html' to 'index.html'. This is mandatory for Vercel to recognize your homepage.
+- ASSETS: Ensure the 'samples' folder is uploaded alongside 'index.html' to keep all links functional.
+- COST: Both methods are 100% free forever for personal portfolios.

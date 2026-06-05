@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TalentScout AI | Intelligent Recruitment Agent</title>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;500;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #050505;
+            --surface: #0f0f12;
+            --accent: #00f2ff;
+            --accent-dim: rgba(0, 242, 255, 0.1);
+            --text: #ffffff;
+            --muted: #888888;
+            --border: #222222;
+            --gold: #ffd700;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { background: var(--bg); color: var(--text); font-family: 'Space Grotesk', sans-serif; display: flex; height: 100vh; overflow: hidden; }
+
+        /* Navigation */
+        aside { width: 300px; background: var(--surface); border-right: 1px solid var(--border); padding: 40px; display: flex; flex-direction: column; }
+        .logo { font-size: 20px; font-weight: 700; letter-spacing: 1px; color: var(--accent); margin-bottom: 40px; }
+        .nav-item { padding: 15px 0; cursor: pointer; color: var(--muted); border-bottom: 1px solid rgba(255,255,255,0.02); transition: all 0.2s; font-size: 14px; }
+        .nav-item:hover, .nav-item.active { color: white; border-left: 3px solid var(--accent); padding-left: 15px; }
+
+        /* Content */
+        main { flex: 1; display: flex; flex-direction: column; overflow-y: auto; }
+        header { padding: 25px 50px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; background: var(--surface); }
+        
+        .page { display: none; padding: 50px; }
+        .page.active { display: block; animation: slideIn 0.4s ease; }
+        @keyframes slideIn { from { opacity: 0; transform: translateX(20px); } to { opacity: 1; transform: none; } }
+
+        /* Agent UI */
+        .agent-container { display: grid; grid-template-columns: 1fr 350px; gap: 30px; }
+        .console-panel { background: #000; border: 1px solid var(--border); border-radius: 12px; padding: 30px; font-family: 'JetBrains Mono', monospace; min-height: 500px; position: relative; }
+        .log-entry { margin-bottom: 15px; font-size: 12px; border-left: 2px solid var(--accent); padding-left: 15px; }
+        .log-time { color: var(--muted); font-size: 10px; margin-bottom: 4px; }
+
+        .candidate-card { background: var(--surface); border: 1px solid var(--border); padding: 20px; border-radius: 12px; margin-bottom: 15px; cursor: pointer; transition: all 0.3s; }
+        .candidate-card:hover { border-color: var(--accent); background: var(--accent-dim); }
+        .score-pill { float: right; background: var(--accent); color: #000; padding: 2px 10px; border-radius: 100px; font-size: 10px; font-weight: 800; }
+
+        /* Toasts */
+        #notif-host { position: fixed; top: 40px; right: 40px; z-index: 2000; }
+        .toast { background: var(--surface); border: 1px solid var(--accent); padding: 15px 30px; font-size: 12px; color: var(--accent); box-shadow: 0 0 30px var(--accent-dim); animation: toastIn 0.3s forwards; }
+        @keyframes toastIn { from { transform: translateY(-20px); opacity: 0; } to { transform: none; opacity: 1; } }
+
+        /* Back Navigation */
+        .back-nav { position: fixed; bottom: 40px; left: 40px; z-index: 1000; }
+        .btn-back { background: var(--surface); color: var(--text); border: 1px solid var(--border); padding: 12px 24px; border-radius: 100px; text-decoration: none; font-size: 12px; font-weight: 700; display: flex; align-items: center; gap: 10px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+    </style>
+</head>
+<body>
+    <div id="notif-host"></div>
+    <div class="back-nav">
+        <a href="../index.html" class="btn-back">← BACK TO PORTFOLIO</a>
+    </div>
+
+    <aside>
+        <div class="logo">TALENT_SCOUT_AI</div>
+        <div class="nav-item active" onclick="showPage('pipeline')">Recruitment Pipeline</div>
+        <div class="nav-item" onclick="showPage('agent-logs')">Agent Logic Logs</div>
+        <div class="nav-item">Template Library</div>
+        <div class="nav-item">Integration Hub</div>
+        <div style="margin-top: auto; padding: 20px; font-size: 10px; opacity: 0.5;">AGENT_STATUS: IDLE</div>
+    </aside>
+
+    <main>
+        <header>
+            <div style="font-weight: 700; font-size: 18px;">PROJECT: SENIOR_REACT_DEV_2026</div>
+            <div style="display: flex; gap: 15px;">
+                <div style="padding: 8px 16px; background: var(--accent-dim); color: var(--accent); border-radius: 4px; font-size: 11px; font-weight: 700;">ACTIVE_SCAN: ON</div>
+            </div>
+        </header>
+
+        <div id="pipeline" class="page active">
+            <div class="agent-container">
+                <div>
+                    <div class="console-panel" id="agent-console">
+                        <div style="color: var(--muted)">> System ready. Awaiting candidate selection...</div>
+                    </div>
+                </div>
+                <div>
+                    <h3 style="font-size: 12px; text-transform: uppercase; letter-spacing: 2px; color: var(--muted); margin-bottom: 20px;">Top Matches</h3>
+                    <div class="candidate-card" onclick="scanCandidate('Alex Chen', 94)">
+                        <span class="score-pill">94% Match</span>
+                        <div style="font-weight: 700;">Alex Chen</div>
+                        <div style="font-size: 12px; color: var(--muted); margin-top: 4px;">Senior Frontend Engineer • 8yr Exp.</div>
+                    </div>
+                    <div class="candidate-card" onclick="scanCandidate('Sarah Miller', 88)">
+                        <span class="score-pill">88% Match</span>
+                        <div style="font-weight: 700;">Sarah Miller</div>
+                        <div style="font-size: 12px; color: var(--muted); margin-top: 4px;">Fullstack Architect • 12yr Exp.</div>
+                    </div>
+                    <div class="candidate-card" onclick="scanCandidate('Marcus T.', 76)">
+                        <span class="score-pill" style="background: var(--muted)">76% Match</span>
+                        <div style="font-weight: 700;">Marcus T.</div>
+                        <div style="font-size: 12px; color: var(--muted); margin-top: 4px;">Lead Developer • 6yr Exp.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="agent-logs" class="page">
+            <div class="console-panel">
+                <div style="color: var(--accent); margin-bottom: 20px;">[REASONING_ENGINE_V4.2]</div>
+                <p style="font-size: 14px; line-height: 1.8; color: var(--muted);">The agent utilizes a "Tree of Thoughts" (ToT) prompting strategy. It generates 3 potential reasoning paths for each resume, evaluates them against the job description using a strict scoring rubric, and selects the most optimal candidate profile for human review.</p>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        function notify(msg) {
+            const host = document.getElementById('notif-host');
+            const t = document.createElement('div');
+            t.className = 'toast';
+            t.textContent = `[AGENT] ${msg}`;
+            host.appendChild(t);
+            setTimeout(() => t.remove(), 3500);
+        }
+
+        function showPage(id) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+            document.querySelectorAll('.nav-item').forEach(i => {
+                i.classList.remove('active');
+                if(i.textContent.toLowerCase().includes(id.replace('-',' '))) i.classList.add('active');
+            });
+            notify(`Switching to ${id.toUpperCase()} view...`);
+        }
+
+        async function scanCandidate(name, score) {
+            const console = document.getElementById('agent-console');
+            console.innerHTML = '';
+            notify(`Deep-scanning profile: ${name}...`);
+
+            const logs = [
+                `Initializing Agentic Reasoning for ${name}...`,
+                `Parsing unstructured PDF data into structured JSON...`,
+                `Executing technical competency cross-reference...`,
+                `VERDICT: Candidate matches ${score}% of high-priority criteria.`,
+                `Generating interview question set based on experience gaps...`,
+                `READY. Set candidate status to [RETAIN].`
+            ];
+
+            for(let log of logs) {
+                const div = document.createElement('div');
+                div.className = 'log-entry';
+                div.innerHTML = `<div class="log-time">${new Date().toLocaleTimeString()}</div>${log}`;
+                console.appendChild(div);
+                await new Promise(r => setTimeout(r, 600));
+            }
+
+            const interviewQ = `
+<div style="margin-top: 30px; border-top: 1px solid var(--border); padding-top: 20px;">
+    <div style="color: var(--gold); font-size: 11px; font-weight: 800; margin-bottom: 10px;">GENERATED INTERVIEW QUESTIONS:</div>
+    <div style="font-size: 13px; color: #fff; line-height: 1.6;">
+        1. "In your tenure at ${name.split(' ')[0]}'s last firm, how did you handle the transition to server-side rendering?"<br>
+        2. "The profile shows high React expertise but limited Next.js exposure. Can you explain your plan to bridge this gap?"
+    </div>
+</div>`;
+            console.innerHTML += interviewQ;
+        }
+    </script>
+</body>
+</html>
