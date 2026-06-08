@@ -699,6 +699,7 @@ footer{
   .cta-actions{flex-direction:column;align-items:stretch}
   .btn-cta-1,.btn-cta-2{justify-content:center}
 }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 </style>
 </head>
 <body>
@@ -727,10 +728,11 @@ footer{
     </div>
   </a>
   <div class="nav-center">
-    <a href="#skills"       onclick="scrollSec('skills');return false">Skills</a>
-    <a href="#trading"      onclick="scrollSec('trading');return false">Trading</a>
+    <a href="#skills"       onclick="scrollSec('skills');return false">Photo & Video</a>
     <a href="#ai"           onclick="scrollSec('ai');return false">AI Training</a>
-    <a href="#testimonials" onclick="scrollSec('testimonials');return false">Results</a>
+    <a href="#skills"       onclick="scrollSec('skills');return false">Web Apps</a>
+    <a href="#skills"       onclick="scrollSec('skills');return false">Data</a>
+    <a href="#trading"      onclick="scrollSec('trading');return false">Trading</a>
   </div>
   <div class="nav-right">
     <a href="#cta" class="btn-ghost" onclick="scrollSec('cta');return false">Book a call</a>
@@ -741,10 +743,11 @@ footer{
 
 <!-- MOBILE MENU -->
 <div class="mobile-menu" id="mobile-menu">
-  <a href="#skills"       onclick="scrollSec('skills');toggleMenu()">Skills</a>
-  <a href="#trading"      onclick="scrollSec('trading');toggleMenu()">Trading</a>
+  <a href="#skills"       onclick="scrollSec('skills');toggleMenu()">Photo & Video</a>
   <a href="#ai"           onclick="scrollSec('ai');toggleMenu()">AI Training</a>
-  <a href="#testimonials" onclick="scrollSec('testimonials');toggleMenu()">Results</a>
+  <a href="#skills"       onclick="scrollSec('skills');toggleMenu()">Web Apps</a>
+  <a href="#skills"       onclick="scrollSec('skills');toggleMenu()">Data</a>
+  <a href="#trading"      onclick="scrollSec('trading');toggleMenu()">Trading</a>
   <div class="mm-btns">
     <a href="#cta" class="btn-ghost" style="flex:1;text-align:center" onclick="scrollSec('cta');toggleMenu()">Book a call</a>
     <a href="#cta" class="btn-solid" style="flex:1;text-align:center" onclick="scrollSec('cta');toggleMenu()">Get a quote ↗</a>
@@ -930,8 +933,8 @@ footer{
     <h2 class="cta-title">Let's build<br>something that <em>works.</em></h2>
     <p class="cta-desc">Whether you need a trading bot, a web app, AI training for your team, or all three — let's talk about what you need and how to get it done.</p>
     <div class="cta-actions">
-      <a href="mailto:daniel@glitchenterprice.com" class="btn-cta-1"><i class="ti ti-calendar"></i> Book a free consultation</a>
-      <a href="mailto:daniel@glitchenterprice.com" class="btn-cta-2"><i class="ti ti-file-invoice"></i> Request a quote</a>
+      <a href="mailto:daniel@glitchenterprice.com" class="btn-cta-1" onclick="notify('Redirecting to secure booking...');setTimeout(()=>window.location.href='mailto:daniel@glitchenterprice.com',1000);return false"><i class="ti ti-calendar"></i> Book a free consultation</a>
+      <a href="mailto:daniel@glitchenterprice.com" class="btn-cta-2" onclick="notify('Preparing quote request...');setTimeout(()=>window.location.href='mailto:daniel@glitchenterprice.com',1000);return false"><i class="ti ti-file-invoice"></i> Request a quote</a>
     </div>
     <p class="cta-note">Typical response within 24 hours · Based in Nigeria · Works globally</p>
   </div>
@@ -953,42 +956,50 @@ footer{
       </div>
       <div class="footer-col">
         <h4>Services</h4>
-        <a href="#">Photo & Video Editing</a>
-        <a href="#">AI Training</a>
-        <a href="#">Web App Development</a>
-        <a href="#">Data Analysis Tools</a>
-        <a href="#">Algo Trading Bots</a>
+        <a href="#skills" onclick="scrollSec('skills');return false">Photo & Video Editing</a>
+        <a href="#ai" onclick="scrollSec('ai');return false">AI Training</a>
+        <a href="#skills" onclick="scrollSec('skills');return false">Web App Development</a>
+        <a href="#skills" onclick="scrollSec('skills');return false">Data Analysis Tools</a>
+        <a href="#trading" onclick="scrollSec('trading');return false">Algo Trading Bots</a>
       </div>
       <div class="footer-col">
         <h4>Trading</h4>
-        <a href="#">XAUUSD Strategy</a>
-        <a href="#">BTCUSD Bots</a>
-        <a href="#">MT5 / MQL5 EAs</a>
-        <a href="#">Blockchain Dev</a>
-        <a href="#">Research & Docs</a>
+        <a href="#trading" onclick="scrollSec('trading');return false">XAUUSD Strategy</a>
+        <a href="#trading" onclick="scrollSec('trading');return false">BTCUSD Bots</a>
+        <a href="#trading" onclick="scrollSec('trading');return false">MT5 / MQL5 EAs</a>
+        <a href="#trading" onclick="scrollSec('trading');return false">Blockchain Dev</a>
+        <a href="#" onclick="notify('Section coming soon');return false">Research & Docs</a>
       </div>
       <div class="footer-col">
         <h4>Contact</h4>
-        <a href="#">Book a consultation</a>
-        <a href="#">Get a quote</a>
-        <a href="#">LinkedIn</a>
-        <a href="#">GitHub</a>
-        <a href="#">Twitter / X</a>
+        <a href="#cta" onclick="scrollSec('cta');return false">Book a consultation</a>
+        <a href="#cta" onclick="scrollSec('cta');return false">Get a quote</a>
+        <a href="#" onclick="notify('Section coming soon');return false">LinkedIn</a>
+        <a href="#" onclick="notify('Section coming soon');return false">GitHub</a>
+        <a href="#" onclick="notify('Section coming soon');return false">Twitter / X</a>
       </div>
     </div>
     <div class="footer-bottom">
       <div class="footer-copy">© 2026 Glitch EnterPrice · Daniel Austin · All rights reserved.</div>
       <div class="footer-social">
-        <a href="#" class="social-link"><i class="ti ti-brand-x"></i></a>
-        <a href="#" class="social-link"><i class="ti ti-brand-linkedin"></i></a>
-        <a href="#" class="social-link"><i class="ti ti-brand-github"></i></a>
-        <a href="#" class="social-link"><i class="ti ti-brand-youtube"></i></a>
+        <a href="#" class="social-link" onclick="notify('Section coming soon');return false"><i class="ti ti-brand-x"></i></a>
+        <a href="#" class="social-link" onclick="notify('Section coming soon');return false"><i class="ti ti-brand-linkedin"></i></a>
+        <a href="#" class="social-link" onclick="notify('Section coming soon');return false"><i class="ti ti-brand-github"></i></a>
+        <a href="#" class="social-link" onclick="notify('Section coming soon');return false"><i class="ti ti-brand-youtube"></i></a>
       </div>
     </div>
   </div>
 </footer>
 
 <script>
+function notify(msg){
+  const t = document.createElement('div');
+  t.style.cssText = "position:fixed;bottom:30px;right:30px;background:var(--gold);color:#000;padding:12px 24px;border-radius:8px;font-family:'Cabinet Grotesk';font-weight:700;font-size:13px;z-index:10000;box-shadow:0 10px 30px rgba(0,0,0,0.5);animation:fadeIn 0.3s;";
+  t.textContent = msg;
+  document.body.appendChild(t);
+  setTimeout(()=>t.remove(), 3000);
+}
+
 /* ── SCROLL ── */
 function scrollSec(id){const el=document.getElementById(id);if(el)el.scrollIntoView({behavior:'smooth'})}
 
@@ -1123,6 +1134,7 @@ skills.forEach(s=>{
   const addThumb=document.createElement('div');
   addThumb.className='sample-thumb sample-add';
   addThumb.innerHTML=`<i class="ti ti-plus"></i><span>Add</span>`;
+  addThumb.onclick = () => notify('Custom sample upload feature coming soon in v2.0');
   thumbsWrap.appendChild(addThumb);
   c.appendChild(thumbsWrap);
   grid.appendChild(c);

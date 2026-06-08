@@ -244,7 +244,7 @@ body.ge-mobile-open aside {
             <div class="card">
                 <div class="card-header">
                     <div class="card-title">Critical Attention List</div>
-                    <div style="color: var(--primary); font-size: 12px; font-weight: 700; cursor: pointer;">View All Registry →</div>
+                    <div style="color: var(--primary); font-size: 12px; font-weight: 700; cursor: pointer;" onclick="notify('Viewing full registry...')">View All Registry →</div>
                 </div>
                 <table>
                     <thead><tr><th>Patient UID</th><th>Ward</th><th>Vitals Status</th><th>Risk Level</th><th>Action</th></tr></thead>
@@ -261,6 +261,20 @@ body.ge-mobile-open aside {
                 <h1 style="margin-bottom: 20px;">Predictive Risk Assessment</h1>
                 <p style="color: var(--text-muted); margin-bottom: 40px;">Machine learning-derived risk scores based on historical readmission data.</p>
                 <div style="height: 400px;"><canvas id="riskChart"></canvas></div>
+            </div>
+        </div>
+
+        <div id="census" class="page">
+            <div class="card">
+                <h1>Facility Census</h1>
+                <p>Occupancy: 88%</p>
+            </div>
+        </div>
+
+        <div id="outcomes" class="page">
+            <div class="card">
+                <h1>Clinical Outcomes</h1>
+                <p>Recovery Rate: 94%</p>
             </div>
         </div>
     </main>

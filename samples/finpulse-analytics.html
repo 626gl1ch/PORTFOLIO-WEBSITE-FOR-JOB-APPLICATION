@@ -188,11 +188,11 @@ body.ge-mobile-open aside {
         <div class="logo-box"><div class="logo-text">FINPULSE PRO</div></div>
         <div class="nav-link active" onclick="showPage('overview')">Executive Overview</div>
         <div class="nav-link" onclick="showPage('revenue')">Revenue Analytics</div>
-        <div class="nav-link" onclick="showPage('expenses')">Expense Reports</div>
-        <div class="nav-link" onclick="showPage('assets')">Asset Management</div>
+        <div class="nav-link" onclick="showPage('expenses')">Expenses</div>
+        <div class="nav-link" onclick="showPage('assets')">Assets</div>
         <div style="margin-top: auto;">
-            <div class="nav-link">Settings</div>
-            <div class="nav-link">System Log</div>
+            <div class="nav-link" onclick="notify('Settings module coming soon')">Settings</div>
+            <div class="nav-link" onclick="notify('Accessing System Log...')">System Log</div>
         </div>
     </aside>
 
@@ -259,6 +259,42 @@ body.ge-mobile-open aside {
             <div class="panel">
                 <h1 style="font-family: 'Bebas Neue'; margin-bottom: 20px;">Revenue Segmentation</h1>
                 <div style="height: 400px;"><canvas id="revChart"></canvas></div>
+            </div>
+        </div>
+
+        <!-- EXPENSES PAGE -->
+        <div id="expenses" class="page">
+            <div class="panel">
+                <h1 style="font-family: 'Bebas Neue'; margin-bottom: 20px;">Expense Reports</h1>
+                <p style="color:var(--text-muted)">Quarterly overhead breakdown and operational costs.</p>
+                <table>
+                    <thead>
+                        <tr><th>Category</th><th>Amount</th><th>Status</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>R&D</td><td>$420,000</td><td class="up">APPROVED</td></tr>
+                        <tr><td>Marketing</td><td>$150,000</td><td class="up">APPROVED</td></tr>
+                        <tr><td>Operations</td><td>$320,000</td><td class="down">PENDING</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- ASSETS PAGE -->
+        <div id="assets" class="page">
+            <div class="panel">
+                <h1 style="font-family: 'Bebas Neue'; margin-bottom: 20px;">Asset Management</h1>
+                <p style="color:var(--text-muted)">Real-time valuation of the enterprise portfolio.</p>
+                <div class="kpi-row" style="margin-top: 20px;">
+                    <div class="kpi-card">
+                        <div class="kpi-label">Fixed Assets</div>
+                        <div class="kpi-value">$12.5M</div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-label">Liquid Assets</div>
+                        <div class="kpi-value">$4.8M</div>
+                    </div>
+                </div>
             </div>
         </div>
     </main>

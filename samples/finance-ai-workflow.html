@@ -190,8 +190,8 @@ body.ge-mobile-open aside {
 
         <div class="nav-group">
             <span class="nav-label">Automation Built</span>
-            <div class="nav-item">HR Recruitment Bot</div>
-            <div class="nav-item">Creative Writing Suite</div>
+            <div class="nav-item" onclick="notify('Feature coming soon in v2.0')">HR Recruitment Bot</div>
+            <div class="nav-item" onclick="notify('Feature coming soon in v2.0')">Creative Writing Suite</div>
         </div>
 
         <div style="margin-top: auto;">
@@ -253,6 +253,18 @@ body.ge-mobile-open aside {
                 <div class="editor-card"><h3>Tone</h3><p style="font-size: 13px; color: var(--muted); margin-top: 10px;">Adjust the emotional response curve.</p></div>
                 <div class="editor-card"><h3>Audience</h3><p style="font-size: 13px; color: var(--muted); margin-top: 10px;">Target the end-reader demographic.</p></div>
                 <div class="editor-card"><h3>Response</h3><p style="font-size: 13px; color: var(--muted); margin-top: 10px;">Define the JSON/Markdown format.</p></div>
+            </div>
+        </div>
+
+        <!-- RAG PAGE -->
+        <div id="rag" class="page">
+            <header>
+                <h1>RAG Knowledge Base</h1>
+                <p style="color: var(--muted); margin-top: 10px;">Status: Indexed (4,200 documents)</p>
+            </header>
+            <div class="editor-card" style="margin-top: 40px;">
+                <p>Vector Database Status: <span style="color: var(--green);">ONLINE</span></p>
+                <p>Topological Indexing: Completed</p>
             </div>
         </div>
     </main>

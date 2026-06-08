@@ -246,9 +246,9 @@ body.ge-mobile-open aside {
         <div class="logo" onclick="showPage('home')">NEXUS RETAIL</div>
         <div class="nav-links">
             <div onclick="showPage('shop')">Shop All</div>
-            <div>Collections</div>
-            <div>Journal</div>
-            <div>About</div>
+            <div onclick="notify('Viewing Collections...')">Collections</div>
+            <div onclick="notify('Viewing Journal...')">Journal</div>
+            <div onclick="notify('Viewing About...')">About</div>
         </div>
         <div class="nav-actions">
             <div class="cart-trigger" onclick="toggleCart()">
@@ -287,7 +287,7 @@ body.ge-mobile-open aside {
                     <h1 style="font-size: 48px; font-weight: 800; letter-spacing: -2px;">All Products</h1>
                     <p style="color: var(--text-muted);">Curated essentials for every environment.</p>
                 </div>
-                <div style="font-weight: 700; font-size: 14px; color: var(--accent); cursor: pointer;">Filters (0) +</div>
+                <div style="font-weight: 700; font-size: 14px; color: var(--accent); cursor: pointer;" onclick="notify('Applying filters...')">Filters (0) +</div>
             </div>
             <div class="grid" id="shop-grid" style="margin-top: 50px;">
                 <!-- Dynamic -->

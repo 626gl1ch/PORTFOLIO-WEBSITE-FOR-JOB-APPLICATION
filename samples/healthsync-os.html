@@ -302,12 +302,12 @@ body.ge-mobile-open aside {
         <div class="nav-item" onclick="showPage('patients')">Patients</div>
         <div class="nav-item" onclick="showPage('appointments')">Appointments</div>
         <div class="nav-item" onclick="showPage('analytics')">Analytics</div>
-        <div class="nav-item">Settings</div>
+        <div class="nav-item" onclick="notify('Settings coming soon')">Settings</div>
     </aside>
 
     <main>
         <header>
-            <input type="text" class="search-bar" placeholder="Search patients, doctors, or records...">
+            <input type="text" class="search-bar" placeholder="Search patients, doctors, or records..." onkeydown="if(event.key === 'Enter') notify('Searching: ' + this.value)">
             <div style="display: flex; align-items: center; gap: 15px;">
                 <div style="text-align: right;">
                     <div style="font-size: 14px; font-weight: 600;">Dr. Sarah Johnson</div>
@@ -324,7 +324,7 @@ body.ge-mobile-open aside {
                     <div class="card">
                         <div class="card-header">
                             <h2 style="font-size: 18px;">Patient Spotlight</h2>
-                            <button style="color: var(--primary); background: none; border: none; font-size: 13px; font-weight: 600; cursor: pointer;">View Profile</button>
+                            <button style="color: var(--primary); background: none; border: none; font-size: 13px; font-weight: 600; cursor: pointer;" onclick="notify('Viewing detailed profile...')">View Profile</button>
                         </div>
                         <div class="patient-info">
                             <div class="avatar" id="active-avatar">JW</div>

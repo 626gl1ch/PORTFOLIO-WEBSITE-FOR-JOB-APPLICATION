@@ -225,10 +225,10 @@ body.ge-mobile-open aside {
     <nav>
         <div class="logo">TRADEWAVE PRO</div>
         <div class="nav-links">
-            <a href="#" class="active">Exchange</a>
-            <a href="#">Markets</a>
-            <a href="#">Futures</a>
-            <a href="#">Wallet</a>
+            <a href="javascript:void(0)" class="active" onclick="notify('Switching to Exchange...')">Exchange</a>
+            <a href="javascript:void(0)" onclick="notify('Opening Markets...')">Markets</a>
+            <a href="javascript:void(0)" onclick="notify('Opening Futures Terminal...')">Futures</a>
+            <a href="javascript:void(0)" onclick="notify('Opening Wallet...')">Wallet</a>
         </div>
         <div style="display: flex; align-items: center; gap: 15px; font-size: 12px; font-weight: 700;">
             <div style="text-align: right;">
@@ -257,7 +257,7 @@ body.ge-mobile-open aside {
             </div>
             <div class="chart-controls">
                 <span class="active">15m</span><span>1h</span><span>4h</span><span>1d</span><span>1w</span>
-                <span style="margin-left: auto;">Indicators ▼</span>
+                <span style="margin-left: auto;" onclick="notify('Loading Technical Indicators...')">Indicators ▼</span>
             </div>
             <div style="flex: 1; padding: 20px;">
                 <canvas id="tradingChart"></canvas>
