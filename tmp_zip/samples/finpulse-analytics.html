@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FinPulse Analytics | Enterprise Intelligence</title>
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Space+Mono:wght@400;700&family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --bg-deep: #050810;
+            --bg-card: #0a0f1e;
+            --cyan: #00d4ff;
+            --gold: #ffd700;
+            --text: #e2e8f0;
+            --text-muted: #64748b;
+            --border: rgba(0, 212, 255, 0.1);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background-color: var(--bg-deep);
+            color: var(--text);
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Sidebar Navigation */
+        aside {
+            width: 280px;
+            background: var(--bg-card);
+            border-right: 1px solid var(--border);
+            padding: 30px;
+            position: fixed;
+            top: 0; bottom: 0;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .logo-box { margin-bottom: 50px; }
+        .logo-text { font-family: 'Bebas Neue', cursive; font-size: 28px; color: var(--cyan); letter-spacing: 2px; }
+        
+        .nav-link { padding: 12px 0; font-size: 13px; font-weight: 600; color: var(--text-muted); cursor: pointer; display: flex; align-items: center; gap: 12px; transition: all 0.3s; }
+        .nav-link:hover, .nav-link.active { color: var(--cyan); }
+        .nav-link.active { border-right: 3px solid var(--cyan); }
+
+        /* Main Content */
+        main { margin-left: 280px; flex: 1; padding: 40px; }
+
+        .page { display: none; }
+        .page.active { display: block; animation: slideUp 0.4s ease-out; }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: none; } }
+
+        /* Header */
+        header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px; }
+        .clock { font-family: 'Space Mono', monospace; color: var(--gold); font-weight: 700; }
+        .btn-export { background: transparent; border: 1px solid var(--cyan); color: var(--cyan); padding: 10px 24px; font-family: 'Bebas Neue', cursive; font-size: 16px; cursor: pointer; transition: all 0.3s; }
+        .btn-export:hover { background: var(--cyan); color: var(--bg-deep); }
+
+        /* KPI Cards */
+        .kpi-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px; margin-bottom: 40px; }
+        .kpi-card { background: var(--bg-card); border: 1px solid var(--border); padding: 24px; border-radius: 4px; position: relative; overflow: hidden; cursor: pointer; transition: transform 0.3s; }
+        .kpi-card:hover { transform: translateY(-5px); border-color: var(--cyan); }
+        .kpi-card::before { content: ''; position: absolute; top: 0; left: 0; width: 3px; height: 100%; background: var(--cyan); }
+        .kpi-label { font-size: 11px; text-transform: uppercase; color: var(--text-muted); letter-spacing: 1px; margin-bottom: 10px; }
+        .kpi-value { font-family: 'Space Mono', monospace; font-size: 28px; font-weight: 700; }
+
+        /* Grid for Charts */
+        .chart-grid { display: grid; grid-template-columns: 3fr 2fr; gap: 24px; margin-bottom: 24px; }
+        .panel { background: var(--bg-card); border: 1px solid var(--border); padding: 30px; border-radius: 4px; }
+        .panel-title { font-family: 'Bebas Neue', cursive; font-size: 20px; color: var(--gold); margin-bottom: 25px; display: flex; justify-content: space-between; align-items: center; }
+
+        /* Table */
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        th { text-align: left; font-family: 'Bebas Neue', cursive; color: var(--cyan); font-size: 16px; padding: 12px; border-bottom: 1px solid var(--border); }
+        td { padding: 12px; font-size: 13px; font-family: 'Space Mono', monospace; border-bottom: 1px solid rgba(255,255,255,0.05); }
+        .up { color: #10b981; }
+        .down { color: #ef4444; }
+
+        /* Toast */
+        #notif-host { position: fixed; top: 30px; right: 30px; z-index: 2000; display: flex; flex-direction: column; gap: 10px; }
+        .toast { background: #111827; border-left: 4px solid var(--cyan); padding: 15px 25px; font-size: 13px; box-shadow: 0 20px 50px rgba(0,0,0,0.5); animation: slideIn 0.3s forwards; }
+        @keyframes slideIn { from { transform: translateX(100%); } to { transform: translateX(0); } }
+
+        /* Back Navigation */
+        .back-nav { position: fixed; bottom: 30px; left: 30px; z-index: 1000; }
+        .btn-back { background: var(--bg-card); color: var(--text); border: 1px solid var(--border); padding: 12px 24px; border-radius: 4px; text-decoration: none; font-size: 12px; font-weight: 700; display: flex; align-items: center; gap: 10px; }
+    </style>
+
+<style id="ge-patch">
+/* ── GE PORTFOLIO PATCH: Mobile Responsiveness & Design Polish ── */
+@import url('https://api.fontshare.com/v2/css?f[]=cabinet-grotesk@400,500,700&display=swap');
+
+/* Back nav upgrade */
+.back-nav,.btn-back { z-index:9999 !important; }
+.btn-back {
+  font-family:'Cabinet Grotesk',sans-serif !important;
+  font-size:12px !important; font-weight:700 !important;
+  letter-spacing:0.5px !important;
+  transition:all .2s !important;
+  white-space:nowrap;
+}
+
+/* Mobile sidebar overlay trigger */
+.ge-burger {
+  display:none;
+  position:fixed;top:12px;left:12px;z-index:9998;
+  width:38px;height:38px;border-radius:9px;
+  background:rgba(0,0,0,0.85);backdrop-filter:blur(12px);
+  border:1px solid rgba(255,255,255,0.15);
+  align-items:center;justify-content:center;
+  cursor:pointer;color:#fff;font-size:18px;
+  transition:border-color .2s;
+}
+.ge-burger svg { pointer-events:none; }
+.ge-overlay {
+  display:none;
+  position:fixed;inset:0;background:rgba(0,0,0,0.5);
+  z-index:997;backdrop-filter:blur(4px);
+}
+.ge-overlay.active { display:block; }
+
+/* Mobile: when sidebar is toggled */
+body.ge-mobile-open aside {
+  transform:translateX(0) !important;
+  box-shadow:12px 0 48px rgba(0,0,0,0.5) !important;
+}
+
+@media(max-width:860px){
+  .ge-burger { display:flex; }
+
+  /* Push aside off-screen by default */
+  body:not(.ge-mobile-open) aside {
+    transform:translateX(-110%) !important;
+    transition:transform .3s cubic-bezier(.2,.8,.2,1) !important;
+  }
+  aside {
+    position:fixed !important;top:0;left:0;bottom:0;
+    z-index:998 !important;
+    transition:transform .3s cubic-bezier(.2,.8,.2,1) !important;
+    overflow-y:auto !important;
+  }
+
+  /* Main fills full width */
+  main, body > main { margin-left:0 !important; }
+  body { overflow-x:hidden; }
+
+  /* Back nav repositioned for mobile */
+  .back-nav {
+    bottom:16px !important;
+    left:50% !important;
+    transform:translateX(-50%) !important;
+  }
+  .btn-back { padding:10px 20px !important; font-size:11px !important; }
+
+  /* Table horizontal scroll */
+  table { display:block; overflow-x:auto; -webkit-overflow-scrolling:touch; }
+}
+
+@media(max-width:540px){
+  main, body > main { padding:16px !important; }
+  .kpi-row, .kpi-grid, .dashboard-grid {
+    grid-template-columns:1fr 1fr !important;
+    gap:10px !important;
+  }
+  .chart-grid, .main-grid, .lab-grid, .analytics-grid {
+    grid-template-columns:1fr !important;
+    gap:16px !important;
+  }
+  .panel, .glass-card, .card, .editor-card, .main-panel {
+    padding:16px !important;
+  }
+  h1 { font-size:clamp(20px,6vw,30px) !important; }
+  .value-text { font-size:clamp(18px,5vw,28px) !important; }
+}
+</style>
+
+</head>
+<body>
+    <div id="notif-host"></div>
+    <div class="back-nav">
+        <a href="../index.html" class="btn-back">← BACK TO PORTFOLIO</a>
+    </div>
+
+    <aside>
+        <div class="logo-box"><div class="logo-text">FINPULSE PRO</div></div>
+        <div class="nav-link active" onclick="showPage('overview')">Executive Overview</div>
+        <div class="nav-link" onclick="showPage('revenue')">Revenue Analytics</div>
+        <div class="nav-link" onclick="showPage('expenses')">Expense Reports</div>
+        <div class="nav-link" onclick="showPage('assets')">Asset Management</div>
+        <div style="margin-top: auto;">
+            <div class="nav-link">Settings</div>
+            <div class="nav-link">System Log</div>
+        </div>
+    </aside>
+
+    <main>
+        <header>
+            <div id="page-title"><h1 style="font-family: 'Bebas Neue', cursive; font-size: 32px; letter-spacing: 2px;">Executive Overview</h1></div>
+            <div style="display: flex; align-items: center; gap: 30px;">
+                <div class="clock" id="clock">00:00:00</div>
+                <button class="btn-export" onclick="exportData()">Export Intelligence</button>
+            </div>
+        </header>
+
+        <!-- OVERVIEW PAGE -->
+        <div id="overview" class="page active">
+            <div class="kpi-row">
+                <div class="kpi-card" onclick="drillKPI('Revenue')">
+                    <div class="kpi-label">Total Revenue</div>
+                    <div class="kpi-value">$4.2M</div>
+                    <div style="font-size: 11px; margin-top: 8px;" class="up">+12.4% ↑</div>
+                </div>
+                <div class="kpi-card" onclick="drillKPI('Net Profit')">
+                    <div class="kpi-label">Net Profit</div>
+                    <div class="kpi-value">$1.1M</div>
+                    <div style="font-size: 11px; margin-top: 8px;" class="up">+8.2% ↑</div>
+                </div>
+                <div class="kpi-card" onclick="drillKPI('Expense Ratio')">
+                    <div class="kpi-label">Expense Ratio</div>
+                    <div class="kpi-value">26%</div>
+                    <div style="font-size: 11px; margin-top: 8px;" class="down">-3.1% ↓</div>
+                </div>
+                <div class="kpi-card" onclick="drillKPI('ROI')">
+                    <div class="kpi-label">ROI</div>
+                    <div class="kpi-value">18.4%</div>
+                    <div style="font-size: 11px; margin-top: 8px;" class="up">+2.1% ↑</div>
+                </div>
+            </div>
+
+            <div class="chart-grid">
+                <div class="panel">
+                    <div class="panel-title">Growth Trajectory // 12 Months <span style="font-size: 12px; font-family: 'Inter';">USD Millions</span></div>
+                    <div style="height: 300px;"><canvas id="mainChart"></canvas></div>
+                </div>
+                <div class="panel">
+                    <div class="panel-title">Asset Distribution</div>
+                    <div style="height: 300px;"><canvas id="distChart"></canvas></div>
+                </div>
+            </div>
+
+            <div class="panel">
+                <div class="panel-title">High-Performance Indicators</div>
+                <table>
+                    <thead>
+                        <tr><th>Asset Identifier</th><th>Current Valuation</th><th>24H Delta</th><th>Status</th></tr>
+                    </thead>
+                    <tbody id="asset-table">
+                        <!-- Dynamic -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- DRILL DOWN PAGES (Simulated) -->
+        <div id="revenue" class="page">
+            <div class="panel">
+                <h1 style="font-family: 'Bebas Neue'; margin-bottom: 20px;">Revenue Segmentation</h1>
+                <div style="height: 400px;"><canvas id="revChart"></canvas></div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        function notify(msg) {
+            const host = document.getElementById('notif-host');
+            const t = document.createElement('div');
+            t.className = 'toast';
+            t.innerHTML = `<span style="color:var(--cyan);margin-right:10px;">►</span> ${msg}`;
+            host.appendChild(t);
+            setTimeout(() => t.remove(), 3500);
+        }
+
+        function showPage(id) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+            document.querySelectorAll('.nav-link').forEach(l => {
+                l.classList.remove('active');
+                if(l.textContent.toLowerCase().includes(id)) l.classList.add('active');
+            });
+            document.getElementById('page-title').innerHTML = `<h1 style="font-family: 'Bebas Neue', cursive; font-size: 32px; letter-spacing: 2px;">${id.toUpperCase()} ANALYSIS</h1>`;
+            if(id === 'revenue') renderRevenue();
+        }
+
+        function exportData() {
+            notify("Initializing Secure Data Export...");
+            setTimeout(() => notify("Compiling Intelligence Report (PDF)..."), 1000);
+            setTimeout(() => notify("Export Successful. File encrypted and saved."), 2500);
+        }
+
+        function drillKPI(label) {
+            notify(`Accessing Historical Data: ${label}`);
+        }
+
+        // Clock
+        setInterval(() => {
+            document.getElementById('clock').textContent = new Date().toLocaleTimeString('en-US', { hour12: false });
+        }, 1000);
+
+        // Assets Table
+        const assets = [
+            { id: 'TECH-GLB-01', v: '$4,120.45', d: '+4.2%', s: 'STABLE' },
+            { id: 'RE-URB-X', v: '$1,850.12', d: '+1.8%', s: 'STABLE' },
+            { id: 'EM-MKTS-ETF', v: '$942.30', d: '-0.5%', s: 'CAUTION' },
+            { id: 'CORP-BND-IDX', v: '$2,450.00', d: '+0.2%', s: 'STABLE' }
+        ];
+
+        const tbody = document.getElementById('asset-table');
+        assets.forEach(a => {
+            const row = document.createElement('tr');
+            row.style.cursor = 'pointer';
+            row.innerHTML = `
+                <td>${a.id}</td>
+                <td>${a.v}</td>
+                <td class="${a.d.startsWith('+') ? 'up' : 'down'}">${a.d}</td>
+                <td style="color: ${a.s === 'STABLE' ? 'var(--cyan)' : 'var(--gold)'}">${a.s}</td>
+            `;
+            row.onclick = () => notify(`Analyzing identifier ${a.id}...`);
+            tbody.appendChild(row);
+        });
+
+        // Charts
+        const mctx = document.getElementById('mainChart').getContext('2d');
+        new Chart(mctx, {
+            type: 'line',
+            data: {
+                labels: ['J','F','M','A','M','J','J','A','S','O','N','D'],
+                datasets: [{
+                    label: 'Revenue',
+                    data: [3.2, 3.5, 4.1, 3.8, 4.2, 4.5, 4.8, 5.2, 5.0, 5.4, 5.9, 6.2],
+                    borderColor: '#00d4ff',
+                    backgroundColor: 'rgba(0, 212, 255, 0.1)',
+                    fill: true, tension: 0.4
+                }]
+            },
+            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
+        });
+
+        const dctx = document.getElementById('distChart').getContext('2d');
+        new Chart(dctx, {
+            type: 'doughnut',
+            data: {
+                labels: ['SaaS','Enterprise','Consulting'],
+                datasets: [{
+                    data: [45, 30, 25],
+                    backgroundColor: ['#00d4ff', '#ffd700', '#111827'],
+                    borderWidth: 0
+                }]
+            },
+            options: { responsive: true, maintainAspectRatio: false, cutout: '70%' }
+        });
+
+        function renderRevenue() {
+            const rctx = document.getElementById('revChart').getContext('2d');
+            new Chart(rctx, {
+                type: 'bar',
+                data: {
+                    labels: ['Q1','Q2','Q3','Q4'],
+                    datasets: [{ label: 'Performance', data: [1.2, 1.5, 1.1, 1.8], backgroundColor: '#00d4ff' }]
+                },
+                options: { responsive: true, maintainAspectRatio: false }
+            });
+        }
+    </script>
+
+<div class="ge-overlay" id="ge-overlay" onclick="geToggle()"></div>
+<button class="ge-burger" id="ge-burger" onclick="geToggle()" aria-label="Menu">
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+    <line x1="3" y1="7" x2="21" y2="7"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="17" x2="21" y2="17"/>
+  </svg>
+</button>
+<script id="ge-patch-js">
+function geToggle(){
+  document.body.classList.toggle('ge-mobile-open');
+  document.getElementById('ge-overlay').classList.toggle('active');
+}
+</script>
+
+</body>
+</html>

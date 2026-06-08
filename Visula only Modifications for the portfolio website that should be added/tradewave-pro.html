@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TradeWave Pro | Advanced Trading Terminal</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --bg: #0b0e11;
+            --surface: #1e2329;
+            --surface-hover: #2b3139;
+            --primary: #f0b90b;
+            --primary-soft: rgba(240, 185, 11, 0.1);
+            --green: #0ecb81;
+            --green-soft: rgba(14, 203, 129, 0.1);
+            --red: #f6465d;
+            --red-soft: rgba(246, 70, 93, 0.1);
+            --text: #eaecef;
+            --text-muted: #848e9c;
+            --border: #363c4e;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            font-family: 'Inter', sans-serif;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* Nav */
+        nav {
+            height: 60px;
+            background: var(--surface);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 20px;
+            z-index: 100;
+        }
+
+        .logo { color: var(--primary); font-weight: 800; font-size: 20px; letter-spacing: -1px; display: flex; align-items: center; gap: 8px; cursor: pointer; }
+        .nav-links { display: flex; gap: 24px; margin-left: 40px; flex: 1; }
+        .nav-links a { text-decoration: none; color: var(--text-muted); font-size: 14px; font-weight: 600; transition: color 0.2s; }
+        .nav-links a.active, .nav-links a:hover { color: var(--text); }
+
+        /* Workspace Grid */
+        main {
+            flex: 1;
+            display: grid;
+            grid-template-columns: 300px 1fr 320px;
+            grid-template-rows: 1fr 250px;
+            gap: 1px;
+            background: var(--border);
+            overflow: hidden;
+        }
+
+        .panel { background: var(--bg); display: flex; flex-direction: column; overflow: hidden; }
+        .panel-header {
+            height: 40px;
+            padding: 0 15px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--text-muted);
+            border-bottom: 1px solid var(--border);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            background: var(--surface);
+        }
+
+        /* Markets Panel */
+        .search-market { padding: 10px; border-bottom: 1px solid var(--border); }
+        .search-market input { width: 100%; background: var(--surface); border: 1px solid var(--border); color: white; padding: 6px 10px; border-radius: 4px; font-size: 12px; outline: none; }
+        
+        .market-list { flex: 1; overflow-y: auto; }
+        .market-item { padding: 12px 15px; display: grid; grid-template-columns: 1fr 80px 70px; font-size: 12px; cursor: pointer; border-bottom: 1px solid rgba(255,255,255,0.02); transition: background 0.2s; }
+        .market-item:hover { background: var(--surface); }
+        .market-item.active { background: var(--primary-soft); border-left: 3px solid var(--primary); }
+        .price-up { color: var(--green); }
+        .price-down { color: var(--red); }
+
+        /* Chart Area */
+        .chart-area { grid-column: 2; grid-row: 1; position: relative; }
+        .chart-controls { padding: 10px 15px; display: flex; gap: 15px; border-bottom: 1px solid var(--border); font-size: 11px; font-weight: 600; color: var(--text-muted); }
+        .chart-controls span { cursor: pointer; }
+        .chart-controls span.active { color: var(--primary); }
+
+        /* Trade History (Bottom) */
+        .history-area { grid-column: 1 / 3; grid-row: 2; }
+        .tabs { display: flex; border-bottom: 1px solid var(--border); background: var(--surface); }
+        .tab { padding: 12px 20px; font-size: 12px; font-weight: 600; color: var(--text-muted); cursor: pointer; }
+        .tab.active { color: var(--primary); border-bottom: 2px solid var(--primary); }
+
+        /* Execution Panel */
+        .execution-area { grid-column: 3; grid-row: 1 / 3; border-left: 1px solid var(--border); }
+        .exec-tabs { display: flex; padding: 15px; gap: 10px; }
+        .exec-tab { flex: 1; text-align: center; padding: 8px; border-radius: 4px; font-size: 12px; font-weight: 700; cursor: pointer; background: var(--surface); transition: all 0.2s; }
+        .exec-tab.buy.active { background: var(--green); color: white; }
+        .exec-tab.sell.active { background: var(--red); color: white; }
+
+        .exec-form { padding: 0 20px; display: flex; flex-direction: column; gap: 15px; }
+        .input-box { display: flex; flex-direction: column; gap: 6px; }
+        .input-box label { font-size: 11px; color: var(--text-muted); }
+        .input-wrap { display: flex; background: var(--surface); border: 1px solid var(--border); border-radius: 4px; overflow: hidden; }
+        .input-wrap input { flex: 1; background: transparent; border: none; color: white; padding: 10px; outline: none; font-family: 'JetBrains Mono', monospace; font-size: 14px; text-align: right; }
+        .input-wrap .unit { padding: 10px; font-size: 12px; color: var(--text-muted); font-weight: 700; }
+
+        .btn-trade { padding: 15px; border-radius: 4px; border: none; color: white; font-weight: 800; font-size: 14px; cursor: pointer; margin-top: 10px; transition: opacity 0.2s; }
+        .btn-trade:active { transform: scale(0.98); }
+
+        /* Notification */
+        #notif-host { position: fixed; top: 80px; right: 20px; z-index: 2000; display: flex; flex-direction: column; gap: 10px; }
+        .toast { background: var(--surface); border-left: 4px solid var(--primary); padding: 15px 25px; border-radius: 4px; font-size: 13px; font-weight: 600; box-shadow: 0 10px 40px rgba(0,0,0,0.5); animation: slideIn 0.3s forwards; }
+        @keyframes slideIn { from { transform: translateX(100%); } to { transform: translateX(0); } }
+
+        /* Back Navigation */
+        .back-nav { position: fixed; bottom: 20px; left: 20px; z-index: 1000; }
+        .btn-back { background: var(--surface); color: var(--text); border: 1px solid var(--border); padding: 10px 20px; border-radius: 4px; text-decoration: none; font-size: 12px; font-weight: 700; display: flex; align-items: center; gap: 8px; }
+    </style>
+
+<style id="ge-patch">
+/* ── GE PORTFOLIO PATCH: Mobile Responsiveness & Design Polish ── */
+@import url('https://api.fontshare.com/v2/css?f[]=cabinet-grotesk@400,500,700&display=swap');
+
+/* Back nav upgrade */
+.back-nav,.btn-back { z-index:9999 !important; }
+.btn-back {
+  font-family:'Cabinet Grotesk',sans-serif !important;
+  font-size:12px !important; font-weight:700 !important;
+  letter-spacing:0.5px !important;
+  transition:all .2s !important;
+  white-space:nowrap;
+}
+
+/* Mobile sidebar overlay trigger */
+.ge-burger {
+  display:none;
+  position:fixed;top:12px;left:12px;z-index:9998;
+  width:38px;height:38px;border-radius:9px;
+  background:rgba(0,0,0,0.85);backdrop-filter:blur(12px);
+  border:1px solid rgba(255,255,255,0.15);
+  align-items:center;justify-content:center;
+  cursor:pointer;color:#fff;font-size:18px;
+  transition:border-color .2s;
+}
+.ge-burger svg { pointer-events:none; }
+.ge-overlay {
+  display:none;
+  position:fixed;inset:0;background:rgba(0,0,0,0.5);
+  z-index:997;backdrop-filter:blur(4px);
+}
+.ge-overlay.active { display:block; }
+
+/* Mobile: when sidebar is toggled */
+body.ge-mobile-open aside {
+  transform:translateX(0) !important;
+  box-shadow:12px 0 48px rgba(0,0,0,0.5) !important;
+}
+
+@media(max-width:860px){
+  .ge-burger { display:flex; }
+
+  /* Push aside off-screen by default */
+  body:not(.ge-mobile-open) aside {
+    transform:translateX(-110%) !important;
+    transition:transform .3s cubic-bezier(.2,.8,.2,1) !important;
+  }
+  aside {
+    position:fixed !important;top:0;left:0;bottom:0;
+    z-index:998 !important;
+    transition:transform .3s cubic-bezier(.2,.8,.2,1) !important;
+    overflow-y:auto !important;
+  }
+
+  /* Main fills full width */
+  main, body > main { margin-left:0 !important; }
+  body { overflow-x:hidden; }
+
+  /* Back nav repositioned for mobile */
+  .back-nav {
+    bottom:16px !important;
+    left:50% !important;
+    transform:translateX(-50%) !important;
+  }
+  .btn-back { padding:10px 20px !important; font-size:11px !important; }
+
+  /* Table horizontal scroll */
+  table { display:block; overflow-x:auto; -webkit-overflow-scrolling:touch; }
+}
+
+@media(max-width:540px){
+  main, body > main { padding:16px !important; }
+  .kpi-row, .kpi-grid, .dashboard-grid {
+    grid-template-columns:1fr 1fr !important;
+    gap:10px !important;
+  }
+  .chart-grid, .main-grid, .lab-grid, .analytics-grid {
+    grid-template-columns:1fr !important;
+    gap:16px !important;
+  }
+  .panel, .glass-card, .card, .editor-card, .main-panel {
+    padding:16px !important;
+  }
+  h1 { font-size:clamp(20px,6vw,30px) !important; }
+  .value-text { font-size:clamp(18px,5vw,28px) !important; }
+}
+</style>
+
+</head>
+<body>
+    <div id="notif-host"></div>
+    <div class="back-nav">
+        <a href="../index.html" class="btn-back">← BACK TO PORTFOLIO</a>
+    </div>
+
+    <nav>
+        <div class="logo">TRADEWAVE PRO</div>
+        <div class="nav-links">
+            <a href="#" class="active">Exchange</a>
+            <a href="#">Markets</a>
+            <a href="#">Futures</a>
+            <a href="#">Wallet</a>
+        </div>
+        <div style="display: flex; align-items: center; gap: 15px; font-size: 12px; font-weight: 700;">
+            <div style="text-align: right;">
+                <div>Account: 0x4f...92a</div>
+                <div style="color:var(--primary)">$42,850.20</div>
+            </div>
+            <img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&q=80&w=100" style="width: 32px; height: 32px; border-radius: 50%; border: 1px solid var(--primary);">
+        </div>
+    </nav>
+
+    <main>
+        <!-- MARKETS -->
+        <div class="panel">
+            <div class="panel-header">Markets</div>
+            <div class="search-market"><input type="text" placeholder="Search symbol..."></div>
+            <div class="market-list" id="market-list">
+                <!-- Dynamic -->
+            </div>
+        </div>
+
+        <!-- CHART -->
+        <div class="panel chart-area">
+            <div class="panel-header">
+                <div id="active-pair">BTC / USDT</div>
+                <div style="color: var(--green); font-family: 'JetBrains Mono'">$67,432.10 (+2.45%)</div>
+            </div>
+            <div class="chart-controls">
+                <span class="active">15m</span><span>1h</span><span>4h</span><span>1d</span><span>1w</span>
+                <span style="margin-left: auto;">Indicators ▼</span>
+            </div>
+            <div style="flex: 1; padding: 20px;">
+                <canvas id="tradingChart"></canvas>
+            </div>
+        </div>
+
+        <!-- EXECUTION -->
+        <div class="panel execution-area">
+            <div class="panel-header">Place Order</div>
+            <div class="exec-tabs">
+                <div class="exec-tab buy active" onclick="setSide('buy')">BUY</div>
+                <div class="exec-tab sell" onclick="setSide('sell')">SELL</div>
+            </div>
+            <div class="exec-form">
+                <div class="input-box">
+                    <label>Price</label>
+                    <div class="input-wrap">
+                        <input type="text" value="67432.10" id="exec-price">
+                        <span class="unit">USDT</span>
+                    </div>
+                </div>
+                <div class="input-box">
+                    <label>Amount</label>
+                    <div class="input-wrap">
+                        <input type="text" placeholder="0.00" id="exec-amount">
+                        <span class="unit" id="exec-unit">BTC</span>
+                    </div>
+                </div>
+                <div style="display: flex; justify-content: space-between; font-size: 11px; color: var(--text-muted); font-weight: 700;">
+                    <span>Available: 12,450 USDT</span>
+                    <span style="color: var(--primary)">Max 100%</span>
+                </div>
+                <button class="btn-trade" id="btn-submit" style="background: var(--green);" onclick="submitOrder()">Buy BTC</button>
+                
+                <div style="margin-top: 20px; border-top: 1px solid var(--border); padding-top: 20px;">
+                    <div class="panel-header" style="background: none; padding: 0; border: none; margin-bottom: 10px;">Order Book</div>
+                    <div id="order-book" style="font-family: 'JetBrains Mono'; font-size: 10px;">
+                        <!-- Mini Orderbook -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- HISTORY -->
+        <div class="panel history-area">
+            <div class="tabs">
+                <div class="tab active">Open Orders (0)</div>
+                <div class="tab">Trade History</div>
+                <div class="tab">Positions</div>
+                <div class="tab">Assets</div>
+            </div>
+            <div id="history-content" style="padding: 20px; color: var(--text-muted); font-size: 12px; text-align: center;">
+                No active orders found for current pair.
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const pairs = [
+            { s: 'BTC/USDT', p: 67432.10, c: '+2.45' },
+            { s: 'ETH/USDT', p: 3542.80, c: '+1.12' },
+            { s: 'SOL/USDT', p: 142.15, c: '-0.85' },
+            { s: 'BNB/USDT', p: 592.40, c: '+0.15' },
+            { s: 'LINK/USDT', p: 18.45, c: '+4.20' }
+        ];
+
+        let activeSide = 'buy';
+        let mainChart;
+
+        function notify(msg, type='info') {
+            const host = document.getElementById('notif-host');
+            const toast = document.createElement('div');
+            toast.className = 'toast';
+            toast.style.borderLeftColor = type === 'success' ? 'var(--green)' : (type === 'error' ? 'var(--red)' : 'var(--primary)');
+            toast.textContent = msg;
+            host.appendChild(toast);
+            setTimeout(() => toast.remove(), 4000);
+        }
+
+        function renderMarkets() {
+            const list = document.getElementById('market-list');
+            list.innerHTML = '';
+            pairs.forEach(p => {
+                const item = document.createElement('div');
+                item.className = `market-item ${p.s === 'BTC/USDT' ? 'active' : ''}`;
+                const colorClass = p.c.startsWith('+') ? 'price-up' : 'price-down';
+                item.innerHTML = `
+                    <div style="font-weight: 700;">${p.s}</div>
+                    <div class="${colorClass}">$${p.p.toLocaleString()}</div>
+                    <div class="${colorClass}" style="text-align: right;">${p.c}%</div>
+                `;
+                item.onclick = () => switchPair(p);
+                list.appendChild(item);
+            });
+        }
+
+        function switchPair(pair) {
+            document.querySelectorAll('.market-item').forEach(i => i.classList.remove('active'));
+            document.getElementById('active-pair').textContent = pair.s;
+            document.getElementById('exec-unit').textContent = pair.s.split('/')[0];
+            document.getElementById('exec-price').value = pair.p;
+            notify(`Switching to ${pair.s} terminal...`);
+            updateChart();
+        }
+
+        function setSide(side) {
+            activeSide = side;
+            const buyTab = document.querySelector('.exec-tab.buy');
+            const sellTab = document.querySelector('.exec-tab.sell');
+            const btn = document.getElementById('btn-submit');
+            const unit = document.getElementById('exec-unit').textContent;
+
+            if(side === 'buy') {
+                buyTab.classList.add('active');
+                sellTab.classList.remove('active');
+                btn.style.background = 'var(--green)';
+                btn.textContent = `Buy ${unit}`;
+            } else {
+                sellTab.classList.add('active');
+                buyTab.classList.remove('active');
+                btn.style.background = 'var(--red)';
+                btn.textContent = `Sell ${unit}`;
+            }
+        }
+
+        function submitOrder() {
+            const amt = document.getElementById('exec-amount').value;
+            const price = document.getElementById('exec-price').value;
+            if(!amt || amt <= 0) return notify("Please enter a valid amount.", "error");
+            
+            notify(`Order Placed: ${activeSide.toUpperCase()} ${amt} @ ${price}`, "success");
+            setTimeout(() => notify(`Order Filled: Execution confirmed. Portfolio updated.`, "success"), 1500);
+        }
+
+        function updateChart() {
+            const newData = Array.from({length: 40}, () => Math.floor(Math.random() * 5000) + 60000);
+            mainChart.data.datasets[0].data = newData;
+            mainChart.update();
+        }
+
+        const ctx = document.getElementById('tradingChart').getContext('2d');
+        mainChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: Array.from({length: 40}, (_, i) => ''),
+                datasets: [{
+                    data: Array.from({length: 40}, () => Math.floor(Math.random() * 5000) + 60000),
+                    borderColor: '#0ecb81',
+                    borderWidth: 2,
+                    pointRadius: 0,
+                    tension: 0.1,
+                    fill: true,
+                    backgroundColor: 'rgba(14, 203, 129, 0.05)'
+                }]
+            },
+            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { display: false }, y: { grid: { color: '#1e2329' } } } }
+        });
+
+        renderMarkets();
+    </script>
+
+<div class="ge-overlay" id="ge-overlay" onclick="geToggle()"></div>
+<button class="ge-burger" id="ge-burger" onclick="geToggle()" aria-label="Menu">
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+    <line x1="3" y1="7" x2="21" y2="7"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="17" x2="21" y2="17"/>
+  </svg>
+</button>
+<script id="ge-patch-js">
+function geToggle(){
+  document.body.classList.toggle('ge-mobile-open');
+  document.getElementById('ge-overlay').classList.toggle('active');
+}
+</script>
+
+</body>
+</html>
